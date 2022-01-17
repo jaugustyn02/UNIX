@@ -1,2 +1,2 @@
 # UNIX
-Opis oczywisty
+i po co to czytasz
