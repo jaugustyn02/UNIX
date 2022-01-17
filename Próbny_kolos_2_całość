@@ -1,0 +1,84 @@
+zad1.sh
+###################################
+#!/bin/bash
+
+if [[ ! $1 ]]; then
+        read file
+else
+        file=$1
+fi
+
+if [[ -f $file ]]; then
+        if [[ ! -s $file ]]; then
+                rm $file
+                echo "file '$1' removed"
+        else
+                echo "file not empty"
+        fi
+elif [[ -d $file ]]; then
+        for file in $(find $file -maxdepth 1 -type f -empty)
+        do
+                rm $file
+        done
+        echo "tried removing files in $1"
+fi
+###################################
+
+zad2.sh
+###################################
+#!/bin/bash
+
+if (($# == 0)); then
+        printf "podaj katalog: "
+        read dir
+else
+        dir=$1
+fi
+
+if [[ -d  $dir ]]; then
+        for file in `find $dir -maxdepth 1 -type f ! -user $(id -un)`
+        do
+                rm $file
+        done
+fi
+###################################
+
+
+zad3.sh
+###################################
+#!/bin/bash
+
+if [[ ! $1 ]]; then
+        printf "enter user name: "
+        read user
+else
+        user=$1
+fi
+
+check_user=$(grep -Ec "^$user:" /etc/passwd)
+if (( $check_user == 0 )); then
+        echo "user not exists"
+else
+        for ps in $(ps -uU $user | tr -s " " | cut -d" " -f 2 | tail -n+2)
+        do
+                kill -SIGUSR1 $ps
+                echo "signal sent to $ps"
+        done
+fi
+
+###################################
+
+
+zad4.sh
+###################################
+#!/bin/bash
+
+trap : SIGTERM SIGINT
+trap clear SIGUSR1
+
+while true
+do
+        echo $(date +%H:%M)
+        sleep 2
+done
+###################################
