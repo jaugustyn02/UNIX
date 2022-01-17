@@ -1,0 +1,213 @@
+zad1.sh
+###################################
+#!/bin/bash
+# Wypisanie argumentów dla Bash
+
+if (( $# == 0)); then
+        echo "Panie idz pan"
+        exit
+fi
+
+licznik=1
+while [[ $1 ]]
+do
+        echo "Argument $licznik to $1"
+        licznik=$((licznik + 1))
+        shift
+done
+
+###################################
+
+zad2.sh
+###################################
+#!/bin/bash
+
+trap 'echo -e "\nsluchaj no"' 1 2 3 9
+
+for (( i = 1; i < 4; i++))
+do
+        echo $i
+        sleep 10
+done
+echo "synek"
+###################################
+
+
+zad3.sh
+###################################
+#!/bin/bash
+
+if (($# != 3)); then
+        echo "ziom 3 argumenty"
+        exit
+fi
+
+for ((i = 1; i <= $3; i++))
+do
+        cp $1 $2/$1"-kopia-"$i
+        echo "utworzono kopie nr" $i
+done
+###################################
+
+zad4.sh
+###################################
+#!/bin/bash
+
+ps_nr=`ps -e | wc -l`
+while true
+do
+        echo "$(($ps_nr - 1))"
+        sleep 3
+done
+###################################
+
+zad5.sh
+###################################
+#!/bin/bash
+
+if (($# < 1)); then
+        echo -n "Podaj uid(s): "
+        read uids
+else
+        uids=$*
+fi
+
+passwd=`cut -d":" -f3,5 /etc/passwd`
+for uid in ${uids[*]}
+do
+        wynik=`echo "$passwd" | grep -E "^$uid:" | cut -d":" -f2`
+        echo "$wynik"
+done
+###################################
+
+zad6b.sh
+###################################
+#!/bin/bash
+
+script_name=`echo $0 | cut -d"/" -f2`
+
+files=`find -maxdepth 1 -type f -printf 'file\t%m\t%f\n'`
+directories=`find -maxdepth 1 -type d -printf 'directory\t%f\n'`
+
+#echo "$files"
+
+IFS=$'\n'
+for file in `echo "$files"`
+do
+        if [[ $file != *$script_name* ]]; then
+                echo "$file"
+        fi
+done
+
+echo "$directories"
+###################################
+
+zad6a.sh
+###################################
+#!/bin/bash
+
+
+script_name=`echo $0 | cut -d"/" -f2`
+list=`ls -la | tr -s " " | awk -v scr_name=$script_name -F" " 'BEGIN{OFS="\t"} {type = substr($1,1,1); if(type == "-" && $9 != scr_name) print "file", substr($1,2,3), $9; else if(type == "d") print "directory", $9}'`
+
+echo "$list"
+###################################
+
+
+zad6.sh
+###################################
+#!/bin/bash
+
+for f in ./*
+do
+        if [[ -d $f ]]; then
+                f=`echo "$f" | cut -d"/" -f2`
+                printf "directory $f\n"
+        elif [[ -f $f  && $f != $0 ]]; then
+                f=`echo "$f" | cut -d"/" -f2`
+                printf "file $f "
+                echo $(ls -l "$f" | awk -F" " '{print substr($1, 2, 3)}')
+        fi
+done
+###################################
+
+zad7.sh
+###################################
+#!/bin/bash
+
+if (($# < 1)); then
+        printf "podaj arg: "
+        read f
+else
+        f=$1
+fi
+
+echo `stat -c %A $f | awk '{n=length($1); print substr($1, 2, n-1)}'`
+echo $(stat -c %a $f)
+###################################
+
+zad8.sh
+###################################
+#!/bin/bash
+
+if(($# == 3)); then
+        file_size=$(wc -c < "$1")
+        n=$(($file_size/$2 + 2))
+        for((i=1; i<$n; i++))
+        do
+                $(dd conv=noerror if=$1 of=$3/$1.$i bs=$2 skip=$((i - 1)) count=1 2>/dev/null)
+        done
+fi
+###################################
+
+zad1s.sh
+###################################
+#!/bin/bash
+
+function end(){
+        echo
+        echo $(date +%F)
+        exit
+}
+
+trap end SIGINT
+
+while true
+do
+        for user in $(who | cut -d" " -f 1 | sort | uniq)
+        do
+                echo "$user $(($(ps -U $user | wc -l) - 1))"
+        done
+        sleep 2
+done
+###################################
+
+zad2s.sh
+###################################
+#!/bin/bash
+
+while [[ $1 ]]
+do
+        echo "$1 $(find $1 -type f | wc -l)"
+        shift
+done
+###################################
+
+zad3s.sh
+###################################
+#!/bin/bash
+
+if (($# == 2)); then
+        tmp=$(mktemp)
+        cp $1 $2 2>$tmp
+        result=$(< $tmp)
+        rm $tmp
+
+        if [[ $result == *"create"* ]]; then
+                echo "nie skopiowano pliku, brak uprawnien zapisu w katalogu"
+        elif [[ $result == *"open"* ]]; then
+                echo "nie skopiowano pliku, brak uprawnien odczytu pliku"
+        fi
+fi
+
+###################################
